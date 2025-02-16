@@ -1,160 +1,176 @@
 
-    <script>
+function createRadioOpt(label, id, attr) {
+  let radioOpt_div = document.createElement('input');
+  radioOpt_div.classList.add("form-check-input");
+  radioOpt_div.setAttribute('type', 'radio');
+  radioOpt_div.setAttribute('name', 'flexRadioDefault');
+  radioOpt_div.setAttribute('nextopt', attr); //custom attribute
+  radioOpt_div.id = id;
 
-      /**
-      *
-      */
-      function createRadioOpt(label, id, attr) {
-        let radioOpt_div = document.createElement('input');
-        radioOpt_div.classList.add("form-check-input");
-        radioOpt_div.setAttribute('type', 'radio');
-        radioOpt_div.setAttribute('name', 'flexRadioDefault');
-        radioOpt_div.setAttribute('nextopt', attr); //custom attribute
-        radioOpt_div.id = id;
+  let lb = document.createElement('label');
+  lb.innerText = label;
+  lb.classList.add("form-check-label");
+  lb.setAttribute('for', id);
 
-        let lb = document.createElement('label');
-        lb.innerText = label;
-        lb.classList.add("orm-check-label");
-        lb.setAttribute('for', id);
+  let div = document.createElement('div');
+  div.classList.add("form-check");
 
-        let div = document.createElement('div');
-        div.classList.add("form-check");
+  div.appendChild(radioOpt_div);
+  div.appendChild(lb);
+  return div;
+}
 
-        div.appendChild(radioOpt_div);
-        div.appendChild(lb);
-        return div;
+/**
+ * Function to create a form group
+ * @returns {obj} - formElement
+ *
+*/
+function createRadioOpts(arr) {
+  let elm_opts = arr.map( (r,i) => {
+    let opt_el = createRadioOpt(r.option, 'q'+this.numberCounter+'A'+(i+1), r.next_id);
+    return opt_el;
+  });
+  let formEl = document.createElement('form');
+  formEl.id = 'form-q';
+
+  for (const e of elm_opts) {
+    formEl.appendChild(e);
+  }        
+  return formEl;
+}
+
+
+
+class prodClass {
+  constructor() {
+    this.url = "http://127.0.0.1:3000/prodClass_2025-2-16_rev2.json";
+    this.data = null;
+    this.numberCounter = 1;
+    this.path = [];
+    this.answer = {};
+    this.loading = true; // Track loading state
+    this.error = null;   // Track any errors
+    this.fetchData();
+
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      this.data = await response.json(); // or response.text() if not JSON
+    } catch (err) {
+      this.error = err;
+      console.error("Error fetching data:", err); // Handle error (e.g., display message)
+    } finally {
+      this.loading = false; // Set loading to false regardless of success/failure
+    }
+  }
 
-      /**
-       * Function to create a form group
-       * @returns {obj} - formElement
-       *
-      */
-      function createRadioOpts(arr) {
-        let elm_opts = arr.map( (r,i) => {
-          let opt_el = createRadioOpt(r.option, 'q'+this.numberCounter+'A'+(i+1), r.next_id);
-          return opt_el;
-        });
-        let formEl = document.createElement('form');
-        formEl.id = 'form-q';
+  init_btn() {
+    const elm = document.createElement('button');
+    elm.innerText = "Accept";
+    elm.classList.add("btn", "btn-primary");
+    elm.id = 'accept_btn';
 
-        for (const e of elm_opts) {
-          formEl.appendChild(e);
-        }        
-        return formEl;
-      }
+    elm.addEventListener('click',() => {
+      this.init_question();
+    });
 
+    const target = document.querySelector('#init_btn');
+    target.appendChild(elm);
+  }
 
-      class prodClass {
-        constructor() {
-          document.addEventListener('DOMContentLoaded', () => {
-            this.init_btn();
-            this.data = google.script.run
-              .withSuccessHandler(this.onFetchSuccess.bind(this))
-              .fetchDriveJSON('17NylBIKBsGIBpKqXIgyxv51sslPnl9wF');
-          });
-          this.numberCounter = 1;
-          this.path = [];
-          this.answer = {};
-        }
+  onFetchSuccess(blob) {
+    const div = document.querySelector('#test_output');
+    const span = document.createElement('span');
+    span.innerText = blob;
+    div.appendChild(span);
 
-        init_btn() {
-          const elm = document.createElement('button');
-          elm.innerText = "Accept";
-          elm.classList.add("btn", "btn-primary");
-          elm.id = 'accept_btn';
+    let parsed = JSON.parse(blob);
+    this.data = parsed;
+    console.log(parsed);
+    return parsed;
+  }
 
-          elm.addEventListener('click',() => {
-            this.init_question();
-          });
+  init_question() {
+    let dq = document.querySelector('#dynamic_qcontext');
+    dq.innerHTML = '';
 
-          const target = document.querySelector('#init_btn');
-          target.appendChild(elm);
-        }
+    let nextBTN = document.createElement('button');
+    nextBTN.innerText ='Next';
+    nextBTN.classList.add("btn", "btn-primary");
+    nextBTN.id = 'next_btn';
 
-        onFetchSuccess(blob) {
-          const div = document.querySelector('#test_output');
-          const span = document.createElement('span');
-          span.innerText = blob;
-          div.appendChild(span);
+    this.attachNextEvent(nextBTN);
 
-          let parsed = JSON.parse(blob);
-          this.data = parsed;
-          console.log(parsed);
-          return parsed;
-        }
+    let nextBTNwrapper_div = document.createElement('div');
+    nextBTNwrapper_div.appendChild(nextBTN);
 
-        init_question() {
-          let dq = document.querySelector('#dynamic_qcontext');
-          dq.innerHTML = '';
+    let q_div = document.createElement('div');
 
-          let nextBTN = document.createElement('button');
-          nextBTN.innerText ='Next';
-          nextBTN.classList.add("btn", "btn-primary");
-          nextBTN.id = 'next_btn';
+    let q_span = document.createElement('span');
+    q_span.innerText = this.data.question[0].question;
+    q_span.classList.add("question-num");
+    q_span.id = 'q_span1';
 
-          this.attachNextEvent(nextBTN);
+    let num_pill = document.createElement('span');
+    num_pill.innerText = this.numberCounter;
+    num_pill.classList.add("badge", "rounded-pill", "bg-dark");
+    num_pill.id = 'num_pill1';
 
-          let nextBTNwrapper_div = document.createElement('div');
-          nextBTNwrapper_div.appendChild(nextBTN);
+    q_div.appendChild(num_pill);
+    q_div.appendChild(q_span);
+    dq.appendChild(q_div);
+    
+    let q1optsArr = this.data.question[0].option;
+    let formElm = createRadioOpts(q1optsArr);
 
-          let q_div = document.createElement('div');
+    dq.appendChild(formElm);
+    
+    dq.appendChild(nextBTNwrapper_div);
+  }
 
-          let q_span = document.createElement('span');
-          q_span.innerText = this.data.question[0].question;
-          q_span.classList.add("question-num");
-          q_span.id = 'q_span1';
+  attachNextEvent(btn) {
+    btn.addEventListener("click", () => {
+      this.numberCounter++;
+      let dq = document.querySelector('#dynamic_qcontext');
 
-          let num_pill = document.createElement('span');
-          num_pill.innerText = this.numberCounter;
-          num_pill.classList.add("badge", "rounded-pill", "bg-dark");
-          num_pill.id = 'num_pill1';
+      // get next next question attribute
+      let nextQ = dq.querySelector('input[name="flexRadioDefault"]:checked').getAttribute('nextopt');
+      let nq_obj = this.getQuestionById(nextQ);
 
-          q_div.appendChild(num_pill);
-          q_div.appendChild(q_span);
-          dq.appendChild(q_div);
-          
-          let q1optsArr = this.data.question[0].option;
-          let formElm = createRadioOpts(q1optsArr);
+      this.setPageNextQuestion(nq_obj, dq);
+      
+    })
+  }
 
-          dq.appendChild(formElm);
-          
-          dq.appendChild(nextBTNwrapper_div);
-        }
+  setPageNextQuestion(q_obj, fragment) {
+    fragment.querySelector('#num_pill1').innerText = this.numberCounter;
+    fragment.querySelector('#q_span1').innerText = q_obj.question;
+    let newOpts = createRadioOpts(q_obj.option);
+    let formQ = document.querySelector('#form-q');
+    formQ.innerHTML = '';
 
-        attachNextEvent(btn) {
-          btn.addEventListener("click", () => {
-            this.numberCounter++;
-            let dq = document.querySelector('#dynamic_qcontext');
+    let optsChildren = [...newOpts.children];
+    for (const e of optsChildren) {
+      formQ.appendChild(e);
+    }
 
-            // get next next question attribute
-            let nextQ = dq.querySelector('input[name="flexRadioDefault"]:checked').getAttribute('nextopt');
-            let nq_obj = this.getQuestionById(nextQ);
+  }
 
-            this.setPageNextQuestion(nq_obj, dq);
-            
-          })
-        }
+  getQuestionById(id) {
+    return this.data.question.filter( r => r.id == id)[0];
+  }
 
-        setPageNextQuestion(q_obj, fragment) {
-          fragment.querySelector('#num_pill1').innerText = this.numberCounter;
-          fragment.querySelector('#q_span1').innerText = q_obj.question;
-          let newOpts = createRadioOpts(q_obj.option);
-          let formQ = document.querySelector('#form-q');
-          formQ.innerHTML = '';
-
-          for (const e of newOpts.children) {
-            formQ.appendChild(e);
-          }
-
-        }
-
-        getQuestionById(id) {
-          return this.data.question.filter( r => r.id == id)[0];
-        }
-
-      }
+}
 
 
-      const formData = new prodClass();
-    </script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  const formData = new prodClass();
+  formData.init_btn();
+})
+
