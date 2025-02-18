@@ -2,3 +2,49 @@
   margin-left : 5px !important;
   font-size : 1vw;
 }
+
+.res-topic-tile {
+  font-size : 1vw;
+  margin-right : 5px;
+}
+
+.res-outcome {
+  border-radius: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: white;
+}
+
+.ans-q-style1 {
+  border-radius: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  background-color: #17234d;
+  color: white;
+}
+
+.ans-topic1 {
+  font-weight: bold;
+}
+
+.ans-topic2 {
+  font-weight: bold;
+  color: #787a82;
+}
+
+.ans-div {
+  margin-top: 5px;
+}
+
+.ans-div-top {
+  margin-top: 5px;
+}
+
+.on-success-text1 {
+  color: #569905;
+}
+
+.on-success-text1::before {
+  content: "✓";
+  margin-right: 5px;
+}
