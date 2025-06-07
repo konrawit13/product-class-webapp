@@ -98,3 +98,11 @@
   background-color: #189479;
   color: white;
 }
+
+.edit-marker::before {
+  content: "✏️";
+}
+
+.acc_question {
+  padding-left: 5px;
+}
