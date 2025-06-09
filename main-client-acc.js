@@ -37,9 +37,16 @@ function createRadioOpt(label, id, attr, opttype, uuid, cquid) {
  * @returns {obj} - formElement
  *
 */
-function createRadioOpts(arr) {
+function createRadioOpts(arr, btn) {
   let elm_opts = arr.map( (r,i) => {
-    let opt_el = createRadioOpt(r.option, 'q'+this.numberCounter+'A'+(i+1), r.next_id, r.outcome_type, r.uuid, r.id);
+    let opt_el = createRadioOpt(r.option, 'q'+this.numberCounter+'A'+(i+1), r.next_id, r.outcome_type, r.uuid, r.idm);
+    opt_el.addEventListener('change', () => {
+      let isAnyRadioSelected = false;
+      if (opt_el.checked) {
+        isAnyRadioSelected = true;
+      }
+      btn.disabled = isAnyRadioSelected;
+    });
     return opt_el;
   });
   let formEl = document.createElement('form');
@@ -112,6 +119,7 @@ class prodClassAcc {
       cont_btn.setAttribute('type','button');
       cont_btn.innerText = 'continue';
 
+      cont_btn.disabled = true;
       return cont_btn
     }
 
@@ -124,12 +132,12 @@ class prodClassAcc {
         clone_acc_elm.querySelector('[class="acc_question"]').innerText = this.data.question[0].question;
         clone_acc_elm.querySelector('[class="edit-marker"]').classList.add('visually-hidden');
         
+        let cont_btn = this.createContBtn();
+
         let q1optsArr = this.data.question[0].option;
-        let formElm = createRadioOpts(q1optsArr);
+        let formElm = createRadioOpts(q1optsArr, cont_btn);
         clone_acc_elm.querySelector('[id^="form-q"]').appendChild(formElm);
         document.querySelector('#question-targ').appendChild(clone_acc_elm);
-
-        let cont_btn = this.createContBtn();
 
         clone_acc_elm.querySelector('[id^="cont_btn"]').appendChild(cont_btn);
         this.attachNextEvent();
@@ -200,10 +208,12 @@ class prodClassAcc {
     pillnum.firstElementChild.innerText = c_num;
 
     clone_acc_elm.querySelector('[class="acc_question"]').innerText = q_obj.question;
-    let newOpts = createRadioOpts(q_obj.option);
+
+    let ctn_btn = this.createContBtn();
+    let newOpts = createRadioOpts(q_obj.option, ctn_btn);
 
     clone_acc_elm.querySelector('[id^="form-q"]').appendChild(newOpts);
-    let ctn_btn = this.createContBtn();
+    
 
     clone_acc_elm.querySelector('[id^="cont_btn"]').appendChild(ctn_btn);
 
