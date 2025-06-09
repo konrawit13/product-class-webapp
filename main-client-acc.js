@@ -7,17 +7,6 @@ function setBtnAction() {
     });
 }
 
-function clone_acc(clone_counter) {
-    const acc_temp = document.getElementById("accordionPanelsStayOpenTemplate");
-    const clone_elm = acc_temp.cloneNode(true);
-    
-    let allIdElements = clone_elm.querySelectorAll('[id]');
-    allIdElements.forEach( (e) => {
-        e.id = e.id + "-" + clone_counter
-    });
-    return clone_elm;
-}
-
 function createRadioOpt(label, id, attr, opttype, uuid, cquid) {
   let radioOpt_div = document.createElement('input');
   radioOpt_div.classList.add("form-check-input");
@@ -94,22 +83,56 @@ class prodClassAcc {
         }
     }
 
+    clone_acc() {
+      const acc_temp = document.getElementById("accordionPanelsStayOpenTemplate");
+      const clone_elm = acc_temp.cloneNode(true);
+      clone_elm.classList.remove('visually-hidden');
+      
+      let allIdElements = clone_elm.querySelectorAll('[id]');
+      allIdElements.forEach( (e) => {
+          e.id = e.id + "-" + this.numberCounter
+      });
+
+      this.numberCounter++;
+    return clone_elm;
+}
+
     setAcceptBtn() {
         const acc_btn = document.getElementById("accept_btn");
         acc_btn.addEventListener("click", ()=> {
             this.init_btn();
+            acc_btn.innerText = "✓";
+            acc_btn.disabled = true;
         });
     }
 
+    createContBtn() {
+      let cont_btn = document.createElement('button');
+      cont_btn.classList.add('btn', 'btn-primary');
+      cont_btn.setAttribute('type','button');
+      cont_btn.innerText = 'continue';
+
+      return cont_btn
+    }
+
+    unhideTemplate() {
+      document.querySelector('#question-targ').querySelector('accordionPanelsStayOpenTemplate').classList.remove('visually-hidden');
+    }
+
     init_btn() {
-        const clone_acc_elm = clone_acc(this.numberCounter);
+        const clone_acc_elm = this.clone_acc();
         clone_acc_elm.querySelector('[class="acc_question"]').innerText = this.data.question[0].question;
+        clone_acc_elm.querySelector('[class="edit-marker"]').classList.add('visually-hidden');
         
         let q1optsArr = this.data.question[0].option;
         let formElm = createRadioOpts(q1optsArr);
-        clone_acc_elm.querySelector('[class="accordion-body"]').appendChild(formElm);
-
+        clone_acc_elm.querySelector('[id^="form-q"]').appendChild(formElm);
         document.querySelector('#question-targ').appendChild(clone_acc_elm);
+
+        let cont_btn = this.createContBtn();
+
+        clone_acc_elm.querySelector('[id^="cont_btn"]').appendChild(cont_btn);
+        this.attachNextEvent();
     }
 
     onFetchSuccess(blob) {
@@ -124,92 +147,109 @@ class prodClassAcc {
         return parsed;
     }
 
-  init_question() {
-    let dq = document.querySelector('#dynamic_qcontext');
-    dq.innerHTML = '';
 
-    let nextBTN = document.createElement('button');
-    nextBTN.innerText ='Next';
-    nextBTN.classList.add("btn", "btn-primary");
-    nextBTN.id = 'next_btn';
+  attachNextEvent() {
+    let q_targ = document.querySelector('#question-targ');
+    let qlst = q_targ.lastElementChild;
+    qlst.querySelector('[id^="cont_btn"]').firstElementChild
+      .addEventListener('click', () => {
+        let sel = qlst.querySelector('input[name="flexRadioDefault"]:checked');
+        console.log('adding new question');
+        this.answer['path'].push(
+          {
+            'qn': qlst.querySelector('[id^="pill_num"]').firstElementChild.innerText,
+            'q': qlst.querySelector('[class="acc_question"]').innerText,
+            'cqid': sel.getAttribute('cqid'),
+            'ans': sel.parentElement.querySelector('[class="form-check-label"]').innerText
+          }
+        );
+              // get next next question attribute
+      
+        let nextQ = sel.getAttribute('nextopt');
+        let optsType = sel.getAttribute('opttype');
+        let nq_obj = this.getQuestionById(nextQ);
+        if (optsType == 'terminal') {
+          let uuid = sel.getAttribute('uuid');
+          let opt = this.getOptByUUID(uuid);
+          this.setTerminal(opt, qlst);
+        } else {
+          this.setNextQuestion(nq_obj, qlst);
+        }
 
-    this.attachNextEvent(nextBTN);
+        // disable all form
+        let allinput = qlst.querySelector('form').querySelectorAll('input');
+        allinput.forEach( (e) => {
+          if (e.disabled !== true) {
+            e.disabled = true;
+          }
+        });
+        
+        qlst.querySelector('[class^="edit-marker"]').classList.remove('visually-hidden');
+        this.setEditEvent(qlst);
 
-    let nextBTNwrapper_div = document.createElement('div');
-    nextBTNwrapper_div.appendChild(nextBTN);
-
-    let q_div = document.createElement('div');
-
-    let q_span = document.createElement('span');
-    q_span.innerText = this.data.question[0].question;
-    q_span.classList.add("question-num");
-    q_span.id = 'q_span1';
-
-    let num_pill = document.createElement('span');
-    num_pill.innerText = this.numberCounter;
-    num_pill.classList.add("badge", "rounded-pill", "bg-dark");
-    num_pill.id = 'num_pill1';
-
-    q_div.appendChild(num_pill);
-    q_div.appendChild(q_span);
-    dq.appendChild(q_div);
-    
-    let q1optsArr = this.data.question[0].option;
-    let formElm = createRadioOpts(q1optsArr);
-
-    dq.appendChild(formElm);
-    
-    dq.appendChild(nextBTNwrapper_div);
+        // hide continue button
+        qlst.querySelector('[id^="cont_btn"]').firstElementChild.classList.add('visually-hidden');
+      });
   }
 
-  attachNextEvent(btn) {
+  setNextQuestion(q_obj, qlst) {
+    let clone_acc_elm = this.clone_acc();
+    let pillnum = clone_acc_elm.querySelector('[id^="pill_num"]');
+    let c_num = parseInt(pillnum.firstElementChild.innerText);
+    c_num++;
+    pillnum.firstElementChild.innerText = c_num;
 
-    btn.addEventListener("click", () => {
-      let dq = document.querySelector('#dynamic_qcontext');
-      let sel = dq.querySelector('input[name="flexRadioDefault"]:checked');
-      this.answer['path'].push(
-        {
-          'q': dq.querySelector('#q_span1').innerText,
-          'qn': dq.querySelector('#num_pill1').innerText,
-          'cqid': sel.getAttribute('cqid'),
-          'ans': sel.parentElement.querySelector('[class="form-check-label"]').innerText
-        }
-      );
-      this.numberCounter++;
+    clone_acc_elm.querySelector('[class="acc_question"]').innerText = q_obj.question;
+    let newOpts = createRadioOpts(q_obj.option);
 
-      // get next next question attribute
+    clone_acc_elm.querySelector('[id^="form-q"]').appendChild(newOpts);
+    let ctn_btn = this.createContBtn();
+
+    clone_acc_elm.querySelector('[id^="cont_btn"]').appendChild(ctn_btn);
+
+    clone_acc_elm.querySelector('[class^="edit-marker"]').classList.add('visually-hidden');
+
+    qlst.insertAdjacentElement('afterend', clone_acc_elm);
+    this.attachNextEvent();
+
+  }
+
+  setEditEvent(qlst) {
+    let editbtn = qlst.querySelector('[class^="edit-marker"]');
+    editbtn.addEventListener( 'click', ()=> {
       
-      let nextQ = sel.getAttribute('nextopt');
-      let optsType = sel.getAttribute('opttype');
-      let nq_obj = this.getQuestionById(nextQ);
-      if (optsType == 'terminal') {
-        let uuid = sel.getAttribute('uuid');
-        let opt = this.getOptByUUID(uuid);
-        this.setTerminal(opt, dq);
-      } else {
-        this.setPageNextQuestion(nq_obj, dq);
+      // 1st clear ui
+      document.querySelector('#test_output').innerHTML = '';
+      document.querySelector('#mail-textarea-div').innerHTML = '';
+
+      let clicked_acc = editbtn.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+
+      while (clicked_acc.nextElementSibling) {
+        clicked_acc.nextElementSibling.remove();
       }
-      
+
+      // enable all form
+      let allinput = clicked_acc.querySelector('form').querySelectorAll('input');
+      allinput.forEach( (e) => {
+        if (e.disabled === true) {
+          e.disabled = false;
+        }
+      });
+      clicked_acc.querySelector('[id^="cont_btn"]').firstElementChild.classList.remove('visually-hidden');
+
+      // 2nd update last edit point in answer object
+      let pillnum = clicked_acc.querySelector('[id^="pill_num"]');
+      let c_num = parseInt(pillnum.firstElementChild.innerText);
+      let filtered_path = this.answer['path'].filter( (r) => parseInt(r.qn) < c_num);
+      this.answer['path'] = filtered_path;
+
     });
   }
 
-  setPageNextQuestion(q_obj, fragment) {
-    fragment.querySelector('#num_pill1').innerText = this.numberCounter;
-    fragment.querySelector('#q_span1').innerText = q_obj.question;
-    let newOpts = createRadioOpts(q_obj.option);
-    let formQ = document.querySelector('#form-q');
-    formQ.innerHTML = '';
-
-    let optsChildren = [...newOpts.children] // using spread operation for turn HTMLCollection into array for iteration.
-    for (const e of optsChildren) {
-      formQ.appendChild(e);
-    }
-
-  }
 
   setAnsDiv(targ) {
     const top_div = document.createElement('div');
-    top_div.classList.add('row', 'ans-div-top', 'd-block');
+    top_div.classList.add('row', 'ans-div-top');
 
 
     const col_div = document.createElement('div');
@@ -217,74 +257,101 @@ class prodClassAcc {
 
     for ( const aw of this.answer.path) {
       const div_row1 = document.createElement('div');
-      div_row1.classList.add('row', 'ans-div', 'd-block');
+      div_row1.classList.add('ans-div');
 
       const qtopic = document.createElement('span');
       qtopic.classList.add('ans-topic1');
       qtopic.innerText = 'คำถาม: ';
       
-
       const qspan = document.createElement('span');
       qspan.classList.add('ans-q-style1');
       qspan.innerText = aw.q;
 
       const div_row2 = document.createElement('div');
-      div_row2.classList.add('row', 'ans-div', 'd-block');
+      div_row2.classList.add('row', 'ans-div');
+
+      const topic_div_col_auto = document.createElement('div');
+      topic_div_col_auto.classList.add('col-auto');
 
       const anstopic = document.createElement('span');
       anstopic.classList.add('ans-topic2');
       anstopic.innerText = 'คำตอบ: ';
+      topic_div_col_auto.append(anstopic);
 
+      const ans_div_col_auto = document.createElement('div');
+      ans_div_col_auto.classList.add('col-auto');
       const ansContent = document.createElement('span');
       ansContent.innerText = aw.ans;
+      ans_div_col_auto.appendChild(ansContent);
+
+
 
       div_row1.appendChild(qtopic);
       div_row1.appendChild(qspan);
 
-      div_row2.appendChild(anstopic);
-      div_row2.appendChild(ansContent);
+      div_row2.appendChild(topic_div_col_auto);
+      div_row2.appendChild(ans_div_col_auto);
 
       col_div.appendChild(div_row1);
       col_div.appendChild(div_row2);
     }
 
     top_div.appendChild(col_div);
-    targ.insertAdjacentElement('afterend', top_div);
+    targ.appendChild(top_div);
   }
 
   setAnsSpan(targ) {
     let ansSpan = document.createElement('span');
     ansSpan.innerText = JSON.stringify(this.answer);
-    targ.insertAdjacentElement('afterend', ansSpan);
+    ansSpan.classList.add('visually-hidden');
+    targ.appendChild(ansSpan);
   }
 
   setTerminal(opt, dq) {
+
+    let border = document.createElement('div');
+    border.classList.add('results-container');
+
+    let topicCol = document.createElement('div');
+    topicCol.classList.add('col-auto');
+
     let topicSpan = document.createElement('span');
     topicSpan.innerText = 'ผลการวินิจฉัยเบื้องต้น:';
     topicSpan.classList.add('res-topic-tile');
-    let outcomeSpan  = document.createElement('span');
+    topicCol.appendChild(topicSpan);
 
     this.answer['outcome'] = {'product_class': opt.outcome, 'uuid': opt.uuid, 'lastUpdate': this.data.data_fetch_datetime, 'version': this.data.rev}; // set outcome
 
+    let outcomeDiv = document.createElement('div');
+    outcomeDiv.classList.add('col-auto');
+    let outcomeSpan = document.createElement('span');
     outcomeSpan.innerText = opt.outcome;
     outcomeSpan.classList.add('res-outcome', 'bg-success');
-    dq.innerHTML = '';
+    outcomeDiv.appendChild(outcomeSpan);
 
-    dq.appendChild(topicSpan);
-    dq.appendChild(outcomeSpan);
+    let uuidDiv = document.createElement('div');
+    uuidDiv.classList.add('col-auto');
+    let uuid_span = document.createElement('span');
+    uuid_span.innerText = 'path : '+ opt.uuid;
+    uuid_span.classList.add('span-results');
+    uuidDiv.appendChild(uuid_span);
+    
+    let divInLine = document.createElement('div');
+    divInLine.classList.add('row', 'd-flex');
 
+    divInLine.appendChild(topicCol);
+    divInLine.appendChild(outcomeDiv);
+    divInLine.appendChild(uuidDiv);
+
+    border.appendChild(divInLine);
+    
     let testSpan = document.querySelector('#test_output');
     
-    
-    let uuid_span = document.createElement('span');
-    uuid_span.innerText = ': '+ opt.uuid;
-
-    
-    this.setAnsSpan(testSpan);
-    this.setAnsDiv(testSpan);
+    this.setAnsSpan(border);
+    this.setAnsDiv(border);
     this.setEmailTextarea();
 
-    testSpan.appendChild(uuid_span);
+    testSpan.appendChild(border);
   }
 
   getQuestionById(id) {
@@ -321,7 +388,7 @@ class prodClassAcc {
     let helper = document.createElement('div');
     helper.id = 'emailHelp';
     helper.classList.add('form-text');
-    helper.innerText = 'This presumptive health product classification request is finished. In case the information above are required for recording or future processing, please fill-in email address.';
+    helper.innerText = 'This presumptive health product classification request is finished. In case the information above are required for recording or any further processing, please fill-in email address.';
 
     let submit_btn = document.createElement('button');
     submit_btn.classList.add('btn', 'btn-dark');
@@ -346,10 +413,6 @@ class prodClassAcc {
     formDiv.appendChild(submit_btn);
   }
 
-  getQuestionById(id) {
-    return this.data.question.filter( r => r.id == id)[0];
-  }
-
   getOptByUUID(uuid) {
     for ( const q of this.data.question) {
       for (const opt of q.option) {
@@ -362,11 +425,8 @@ class prodClassAcc {
   }
 }
 
-
-
 // Object entrypoints:
 document.addEventListener('DOMContentLoaded', () => {
     const formData = new prodClassAcc();
     formData.setAcceptBtn();
-//   formData.init_btn();
 });
