@@ -55,48 +55,85 @@
     </div>
     <header>
         <div class="pre-navbar">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-            <a class="navbar-brand visually-hidden" href="#">เว็บแอปพลิเคชันการจัดประเภทผลิตภัณฑ์สุขภาพด้วยตนเอง</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item visually-hidden">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
-                <li class="nav-item visually-hidden">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item dropdown visually-hidden">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Dropdown
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                <a class="navbar-brand visually-hidden" href="#">เว็บแอปพลิเคชันการจัดประเภทผลิตภัณฑ์สุขภาพด้วยตนเอง</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item visually-hidden">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item visually-hidden">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+    
+                    <li class="nav-item">
+                        
+                    </li>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    
-                </li>
-                </ul>
-                <form class="d-flex">
-                <button class="btn btn-outline-success" id="user-name" aria-label="Close" disabled>Logged in as</button>
-                </form>
-                <button class="btn btn-subtle" id="log-out">Log out</button>
-            </div>
-            </div>
-        </nav>
+                    <form class="d-flex">
+                        <button class="btn btn-light" id="user-name" aria-label="Close" disabled>สวัสดี</button>
+                        <button class="btn btn-success" id="user-name" aria-label="Close" disabled>Logged in as a Guest</button>
+                    </form>
+                    <button class="btn btn-subtle" id="log-out">Log out</button>
+                </div>
+                </div>
+            </nav>
         </div>
     </header>
     <main>
         <div class="container">
             <div class="row">
-
+                <div class="mb-3">
+                    <label for="prd_name1" class="form-label">ผลิตภัณฑ์สุขภาพของท่านชื่อ:</label>
+                    <input type="text" class="form-control" id="prd_name1" aria-describedby="emailHelp">
+                    <div id="emailHelp" class="form-text">ตัวอย่าง เช่น ขนมหวานแสนอร่อย</div>
+                </div>
+            </div>
+            <div class="row">
+                
+            </div>
+            <div class="row">
+                <div class="col">
+                    ลักษณะของผลิตภัณฑ์เป็น:
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault_prd_type" id="prd_type_flexRadioDefault1">
+                    <label class="form-check-label" for="prd_type_flexRadioDefault1">
+                        วัตถุดิบ
+                    </label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault_prd_type" id="prd_type_flexRadioDefault2">
+                    <label class="form-check-label" for="prd_type_flexRadioDefault2">
+                        ผลิตภัณฑ์สำเร็จรูป
+                    </label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault_prd_type" id="prd_type_flexRadioDefault3">
+                    <label class="form-check-label" for="prd_type_flexRadioDefault3">
+                        เครื่องมือ/อุปกรณ์
+                    </label>
+                    </div>
+                </div>
+                        
+            </div>
+            <div class="row">
+                <div class="mb-3">
+                    <label for="ind_name1" class="form-label">ผลิตภัณฑ์สุขภาพของท่านชื่อ:</label>
+                    <input type="text" class="form-control" id="ind_name1" aria-describedby="emailHelp">
+                    <div id="emailHelp" class="form-text">ตัวอย่าง เช่น ใช้ลดร</div>
+                </div>
             </div>
             <div class="d-flex">
                 <div class="col ms-auto p-2 justify-content-center">
