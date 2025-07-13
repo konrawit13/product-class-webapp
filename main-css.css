@@ -193,3 +193,12 @@
   color: #548576;
   padding-left: 5px;
 }
+
+.btn-division-law {
+  background-color: #e1f7d2;
+  color: #616e6b;
+  border: none;
+  border-radius: 8px;
+  vertical-align: center;
+  margin-top: 5px;
+}
