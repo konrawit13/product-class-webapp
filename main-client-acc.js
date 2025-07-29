@@ -378,6 +378,27 @@ class prodClassAcc {
     status_div.appendChild(span);
   }
 
+  getPrdInfo() {
+    let prd_info = {
+      "product_name": document.getElementById("prd_name1").value,
+      "product_indication": document.getElementById("ind_name1").value
+    };
+    let prd_type;
+    try {
+      prd_type = document.querySelector('input[name="flexRadioDefault_prd_type"]:checked').parentElement.querySelector('[class="form-check-label"]').innerText;
+    } catch(e) {
+      prd_type = "";
+    }
+    prd_info["product_type"] = prd_type;
+
+    return prd_info;
+  }
+
+  enableoptin() {
+    const divoptin = document.getElementById("opt-in-question");
+    divoptin.classList.remove("visually-hidden");
+  }
+
   setEmailTextarea() {
     let formDiv = document.querySelector('#mail-textarea-div');
     let formElm = document.createElement('form');
@@ -425,6 +446,10 @@ class prodClassAcc {
         let emailAddress = inputb.value;
         this.answer['email'].push(emailAddress);
       });
+
+      let prdinfo = this.getPrdInfo();
+
+      this.answer["product_info"] = prdinfo;
       
       console.log(this.answer);
 
@@ -432,6 +457,8 @@ class prodClassAcc {
       //   .withSuccessHandler(this.onSubmitSuccess)
       //   .retrieveResponse(JSON.stringify(this.answer));
     });
+
+    
 
     divmb.appendChild(mblabel);
     divmb.appendChild(mbinput);
@@ -442,6 +469,8 @@ class prodClassAcc {
 
     formDiv.appendChild(formElm);
     formDiv.appendChild(submit_btn);
+
+    this.enableoptin();
   }
 
   getOptByUUID(uuid) {
