@@ -71,7 +71,8 @@ class prodClassAcc {
         this.fetchData();
         this.answer = {
         'path' : [],
-        'outcome': {}
+        'outcome': {},
+        'email':[]
         };
     }
 
@@ -383,11 +384,12 @@ class prodClassAcc {
     let divmb = document.createElement('div');
     divmb.classList.add('mb-3');
 
-    let mbid = 'mb3';
+    let mbid = `mb3_${this.numberCounter}`;
     let mblabel = document.createElement('label');
     mblabel.classList.add('form-label');
     mblabel.innerText = 'Email Address:';
     mblabel.setAttribute('for', mbid);
+    this.numberCounter++;
 
     let mbinput = document.createElement('input');
     mbinput.classList.add('form-control');
@@ -404,17 +406,36 @@ class prodClassAcc {
     submit_btn.classList.add('btn', 'btn-dark');
     submit_btn.innerText = 'submit';
 
-    submit_btn.addEventListener('click', () => {
-      let emailAddress = document.querySelector('#mb3').value;
-      this.answer['email'] = emailAddress;
+    let a_btn = document.createElement('a');
+    a_btn.setAttribute('role','button');
+    a_btn.classList.add('text-decoration-none', 'd-flex', 'justify-content-center');
+    a_btn.innerText = "+ add another email";
+    a_btn.addEventListener('click', () =>{
+      let clone_input = mbinput.cloneNode(true);
+      clone_input.id = mbinput.id+this.numberCounter;
+      this.numberCounter++;
+      clone_input.classList.add('mt-1');
+      const hookElm = document.getElementById(mbinput.id);
+      hookElm.insertAdjacentElement('afterend', clone_input);
+    });
 
-      google.script.run
-        .withSuccessHandler(this.onSubmitSuccess)
-        .retrieveResponse(JSON.stringify(this.answer));
+    submit_btn.addEventListener('click', () => {
+      const allinputmb = divmb.querySelectorAll('.form-control');
+      allinputmb.forEach( (inputb) => {
+        let emailAddress = inputb.value;
+        this.answer['email'].push(emailAddress);
+      });
+      
+      console.log(this.answer);
+
+      // google.script.run
+      //   .withSuccessHandler(this.onSubmitSuccess)
+      //   .retrieveResponse(JSON.stringify(this.answer));
     });
 
     divmb.appendChild(mblabel);
     divmb.appendChild(mbinput);
+    divmb.appendChild(a_btn);
     divmb.appendChild(helper);
 
     formElm.appendChild(divmb);
